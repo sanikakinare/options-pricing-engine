@@ -27,10 +27,14 @@ that simulation converge faster.
 *(Fill in as you go.)*
 
 - [ ] **Validation:** Monte Carlo converges to Black-Scholes (Figure 1).
+- [ ] **Error bounds:** every Monte Carlo price is reported with a 95%
+      confidence interval, and the interval narrows as √n paths are added — the
+      estimate comes with a stated uncertainty, not just a point value.
 - [ ] **Exotic:** Asian option priced by simulation; comes out cheaper than the
       vanilla equivalent, as expected.
 - [ ] **Variance reduction:** standard error vs. paths for naive MC vs.
-      antithetic vs. control variate (Figure 2) — quantified speedup.
+      antithetic vs. control variate (Figure 2) — quantified speedup, shown as
+      a *narrower CI for the same number of paths*.
 
 ## Repo structure
 
@@ -74,5 +78,24 @@ This is the section that becomes your SOP sentence, so write it for a human.*
 
 ## What I'd do next
 
-*(One or two lines — barrier options, the Greeks, a vol surface. Signals you
-know where this goes even if you stopped here.)*
+The natural extension is to grow this into a fuller pricing engine covering a
+wider family of exotics and a richer set of variance-reduction methods. In
+rough order of what I'd add:
+
+- **Barrier options (knock-in / knock-out).** Path-dependent options that
+  activate or extinguish when the underlying crosses a level. These build
+  directly on the path-tracking already used for the Asian option.
+- **Importance sampling.** The key technique for *rare-payoff* options — e.g. a
+  far out-of-the-money barrier that almost never triggers, where naive Monte
+  Carlo wastes nearly all its paths on zero payoffs. Importance sampling shifts
+  the simulated distribution toward the region that matters, then reweights, so
+  the estimator concentrates its effort where the payoff actually lives.
+- **A unified variance-reduction layer.** Combine antithetic variates, control
+  variates, and importance sampling, and compare which delivers the tightest
+  confidence interval per unit of compute for each option type.
+- **Greeks and a volatility surface.** Sensitivities (delta, vega, …) via
+  finite differences or pathwise methods, and calibration to a market-implied
+  vol surface.
+
+The through-line is the same discipline used here: don't just estimate the
+price, quantify the uncertainty and drive the error bound down.

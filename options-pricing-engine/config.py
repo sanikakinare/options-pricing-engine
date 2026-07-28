@@ -26,3 +26,9 @@ BS_PUT_REFERENCE = 5.5735
 # --- Reproducibility ---
 # Use this seed so your simulation results are repeatable run-to-run.
 RANDOM_SEED = 42
+
+# --- Confidence interval reporting ---
+# Every Monte Carlo price should come with an error bound, not just a point
+# estimate. A 95% CI uses z = 1.96 (the standard-normal critical value).
+CONFIDENCE_LEVEL = 0.95
+Z_SCORE = 1.96
