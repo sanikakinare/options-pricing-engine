@@ -55,4 +55,14 @@ def simulate_gbm_terminal(S0, r, sigma, T, n_paths, seed=None):
     mu never enters an option price. This is why r -- not mu -- is used here.
     -------------------------------------------------------------------------
     """
-    raise NotImplementedError("Implement simulate_gbm_terminal in Wednesday's session.")
+    drift = (r - 0.5 * sigma**2)*T
+    # Z = np.random.standard_normal(n_paths) - This is right 
+
+    # This is to help the tests pass
+    rng = np.random.default_rng(seed)
+    Z = rng.standard_normal(n_paths)
+    wobble = sigma * T**0.5 * Z
+
+    St = S0 * np.exp(drift + wobble)
+
+    return St
