@@ -50,7 +50,16 @@ def monte_carlo_price(S0, K, r, sigma, T, n_paths, option_type="call", seed=None
     of your writeup.
     -------------------------------------------------------------------------
     """
-    raise NotImplementedError("Implement monte_carlo_price in Saturday's deep block.")
+    ST = simulate_gbm_terminal(S0, r, sigma, T, n_paths, seed=seed)
+    if option_type == "call":
+        payoff = np.maximum(ST - K,0)
+    if option_type == "put":
+        payoff = np.maximum(K - ST,0)
+
+    discounted_payoff = payoff * np.exp(-r*T)
+
+    average_payoff = np.mean(discounted_payoff)
+    return average_payoff
 
 
 def monte_carlo_price_with_ci(S0, K, r, sigma, T, n_paths, option_type="call",
@@ -93,4 +102,26 @@ def monte_carlo_price_with_ci(S0, K, r, sigma, T, n_paths, option_type="call",
     the narrowest CI for the same number of paths.
     -------------------------------------------------------------------------
     """
-    raise NotImplementedError("Implement monte_carlo_price_with_ci in Saturday's block.")
+    ST = simulate_gbm_terminal(S0, r, sigma, T, n_paths, seed=seed)
+
+    if option_type == "call":
+        payoff = np.maximum(ST - K, 0.0)
+    if option_type == "put":
+        payoff = np.maximum(K - ST, 0.0)
+
+    discounted_payoff = np.exp(-r*T) * payoff
+
+    average_price = discounted_payoff.mean() 
+    standard_error = discounted_payoff.std(ddof=1) / np.sqrt(n_paths)
+
+    half_width = z_score * standard_error 
+    ci_low = average_price - half_width
+    ci_high = average_price + half_width
+
+    return {
+        "price": average_price,
+        "std_error": standard_error,
+        "ci_low": ci_low,
+        "ci_high": ci_high,
+        "half_width": half_width
+    }
