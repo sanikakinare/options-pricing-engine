@@ -1,3 +1,4 @@
+import numpy as np
 """
 Variance reduction techniques.
 
@@ -15,10 +16,35 @@ Left as placeholders for now.
 """
 
 
-def price_asian_antithetic(*args, **kwargs):
+def price_asian_antithetic(S0, K, r, sigma, T, n_paths, n_steps, option_type="call", seed=None):
     """Week 3 -- antithetic-variates version of the Asian pricer."""
-    raise NotImplementedError("Week 3.")
+    rng = np.random.default_rng(seed)
+    Z = rng.standard_normal((n_paths//2, n_steps))
+    Z_neg = -Z
 
+    dt = T/n_steps
+    drift = (r - 0.5*sigma**2) * dt
+    wobble = sigma * np.sqrt(dt) * Z
+    wobble_neg = sigma * np.sqrt(dt) * Z_neg
+
+    S_path = S0 * np.exp(np.cumsum(drift + wobble, axis=1))
+    S_path_neg = S0 * np.exp(np.cumsum(drift + wobble_neg, axis=1))
+
+    S_average = np.mean(S_path, axis=1)
+    S_average_neg = np.mean(S_path_neg, axis=1)
+
+    if option_type == "call":
+        payoff = np.maximum(S_average - K, 0)
+        payoff_neg = np.maximum(S_average_neg - K, 0)
+    else:
+        payoff = np.maximum(K - S_average, 0)
+        payoff_neg = np.maximum(K - S_average_neg, 0)
+
+    payoff_mean = (payoff + payoff_neg) / 2
+    final_payoff = np.mean(payoff_mean)
+    discounted_payoff = final_payoff * np.exp(-r*T)
+
+    return discounted_payoff
 
 def price_asian_control_variate(*args, **kwargs):
     """Week 3 -- control-variate version using the geometric-Asian closed form."""
