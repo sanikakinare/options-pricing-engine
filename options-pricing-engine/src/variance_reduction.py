@@ -3,8 +3,7 @@ import numpy as np
 Variance reduction techniques.
 
 WEEK 3. These make your Monte Carlo estimates converge faster (smaller standard
-error for the same number of paths). This is the most "quant" week and the
-centerpiece of your writeup.
+error for the same number of paths).
 
   - Antithetic variates: for each random draw Z, also use -Z. The paired paths
     partially cancel each other's noise.
@@ -12,7 +11,6 @@ centerpiece of your writeup.
     Asian, which has a closed form) to correct the noisy estimate of the
     quantity you actually want (the arithmetic-average Asian).
 
-Left as placeholders for now.
 """
 
 

@@ -1,9 +1,5 @@
 """
 Black-Scholes closed-form pricing.
-
-WEEK 1 - MONDAY. This is your analytic ("exact") pricer. Later you'll build a
-Monte Carlo pricer that should agree with this one to 3-4 decimals -- that
-agreement is your proof both are correct.
 """
 
 import numpy as np
@@ -35,24 +31,12 @@ def black_scholes_price(S0, K, r, sigma, T, option_type="call"):
         The option price.
 
     -------------------------------------------------------------------------
-    WHAT TO IMPLEMENT (Monday):
 
-      d1 = (ln(S0/K) + (r + sigma^2 / 2) * T) / (sigma * sqrt(T))
-      d2 = d1 - sigma * sqrt(T)
+    d1 = (ln(S0/K) + (r + sigma^2 / 2) * T) / (sigma * sqrt(T))
+    d2 = d1 - sigma * sqrt(T)
 
-      call = S0 * N(d1) - K * exp(-r*T) * N(d2)
-      put  = K * exp(-r*T) * N(-d2) - S0 * N(-d1)
-
-    where N(.) is the standard normal CDF -> use norm.cdf from scipy.stats.
-
-    INTUITION TO PIN DOWN (one sentence each, for your SOP later):
-      - N(d2) is roughly the risk-neutral probability the option finishes
-        in the money.
-      - Raising sigma raises the price -- more volatility means more upside
-        without more downside (the payoff is floored at zero).
-
-    VALIDATION: with S0=100, K=100, r=0.05, sigma=0.2, T=1 the call should
-    come out to about 10.4506 (see config.BS_CALL_REFERENCE).
+    call = S0 * N(d1) - K * exp(-r*T) * N(d2)
+    put  = K * exp(-r*T) * N(-d2) - S0 * N(-d1)
     -------------------------------------------------------------------------
     """
     # d1 & d2 formulas
