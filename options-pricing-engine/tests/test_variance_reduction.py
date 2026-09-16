@@ -15,7 +15,7 @@ import pytest
 
 import config
 from src.exotics import price_asian_option
-from src.variance_reduction import price_asian_antithetic
+from src.variance_reduction import price_asian_antithetic, price_asian_control_variate
 
 N_PATHS = 10_000
 N_STEPS = 50
@@ -50,3 +50,38 @@ def test_antithetic_reduces_error_for_asian_call():
 
     # The whole point of antithetic variates: lower variance for the same budget.
     assert antithetic_std < naive_std
+
+
+def test_control_variate_reduces_error_for_asian_call():
+    """Control-variate pricing should agree with naive MC on the price, and have
+    a much tighter spread across seeds -- the geometric-Asian closed form is
+    highly correlated with the arithmetic-Asian MC estimate on the same paths,
+    so most of the path-to-path noise cancels out."""
+    naive_prices = [
+        price_asian_option(config.S0, config.K, config.R, config.SIGMA, config.T,
+                           n_paths=N_PATHS, n_steps=N_STEPS,
+                           option_type="call", seed=seed)
+        for seed in range(N_TRIALS)
+    ]
+    cv_prices = [
+        price_asian_control_variate(config.S0, config.K, config.R, config.SIGMA, config.T,
+                                    n_paths=N_PATHS, n_steps=N_STEPS,
+                                    option_type="call", seed=seed)
+        for seed in range(N_TRIALS)
+    ]
+
+    naive_std = np.std(naive_prices)
+    cv_std = np.std(cv_prices)
+
+    print(f"\nNaive Asian std over {N_TRIALS} seeds:            {naive_std:.5f}")
+    print(f"Control-variate Asian std over {N_TRIALS} seeds: {cv_std:.5f}")
+
+    # The two estimators should still land in the same ballpark. The tolerance
+    # is wider than the antithetic test's because the closed form used here
+    # (Kemna-Vorst) assumes continuous monitoring, while the simulation only
+    # monitors at N_STEPS discrete points -- that mismatch is a small, fixed
+    # bias (not noise), so it doesn't shrink as n_paths grows.
+    assert np.mean(cv_prices) == pytest.approx(np.mean(naive_prices), abs=0.15)
+
+    # The whole point of control variates: much lower variance for the same budget.
+    assert cv_std < naive_std / 5
