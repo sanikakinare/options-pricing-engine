@@ -2,16 +2,10 @@ import numpy as np
 from scipy.stats import norm
 """
 Variance reduction techniques.
-
-WEEK 3. These make your Monte Carlo estimates converge faster (smaller standard
-error for the same number of paths).
-
   - Antithetic variates: for each random draw Z, also use -Z. The paired paths
     partially cancel each other's noise.
-  - Control variates: use a quantity with a KNOWN answer (the geometric-average
-    Asian, which has a closed form) to correct the noisy estimate of the
-    quantity you actually want (the arithmetic-average Asian).
-
+  - Control variates: use a quantity with a KNOWN answer to correct the noisy estimate of the
+    quantity you actually want
 """
 
 
@@ -73,6 +67,9 @@ def price_asian_control_variate(S0, K, r, sigma, T, n_paths, n_steps, option_typ
     coeff = np.cov(arithmetic_price, geometric_price)[0, 1]/np.var(geometric_price, ddof=1)
 
     control_variate_price = arithmetic_price - coeff * (geometric_price - option_price)
+
+    # standard_error = control_variate_price.std(ddof=1) / np.sqrt(n_paths)
+
     return control_variate_price.mean()
 
 def simulate_paths(S0, r, sigma, T, n_paths, n_steps, seed=None):
